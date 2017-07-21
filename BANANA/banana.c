@@ -11,7 +11,7 @@
 #define APPLE_M_PORT 1509
 
 int main(int argc, char **argv) {
-	int sock;
+	int sock, sock_main;
     int server_addr_size;
 
     struct sockaddr_in server_addr;
@@ -35,14 +35,14 @@ int main(int argc, char **argv) {
     if(sendto(sock, dummy, strlen(dummy), 0,
             (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("sendto error!");
-        exit(1);
+        exit(2);
     }
 
     server_addr_size  = sizeof(server_addr);
     if(recvfrom(sock, apple_ip, BUFF_SIZE, 0,
             (struct sockaddr*)&server_addr, &server_addr_size) < 0) {
         perror("recvfrom error!");
-        exit(1);
+        exit(3);
     }
 
     printf("receive_ip: %s \n", apple_ip);
@@ -54,6 +54,30 @@ int main(int argc, char **argv) {
 //  printf("message : %s  size : %ld\n", message_send, strlen(message_send));
 
     close(sock);
+
+    sock_main = socket(AF_INET, SOCK_STREAM, 0);
+
+    if(-1 == sock) {
+        perror("sock_main error");
+        exit(1);
+    }
+
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family      = AF_INET;
+    server_addr.sin_port        = htons(APPLE_M_PORT);
+    server_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
+
+    if(bind(sock_main, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        perror("bind error");
+        exit(4);
+    }
+
+    if(send(sock_main, message, sizeof(message), 0) < 0) {
+        perror("send error");
+        exit(2);
+    }
+
+    close(sock_main);
 
     return 0;
 }
