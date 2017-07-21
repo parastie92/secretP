@@ -10,10 +10,9 @@
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
 
-void string_to_ip(const char *ip_port, char *pointer);
+void string_to_ip_port(char *ip_port, char *ptr_ip, int *port);
 
 int main(int argc, char **argv) {
-/*  
 
     if(argc != 2) {
         printf("plz input : ./orange \"session_id(1~9)\"\n");
@@ -91,29 +90,38 @@ int main(int argc, char **argv) {
     printf("banana_ip and port : %s\n", banana_ip);
 
     close(sock_main);
- */
+
     char ip[20];
-    string_to_ip("100.200.300.340:2039", ip);
+    int *port = (int*)malloc(sizeof(int));
+
+    string_to_ip_port(banana_ip, ip, port);
 
     printf("ip : %s\n", ip);
+    printf("port : %d\n", *port);
 
-//    if(fork() == 0) {
-//        execp("ping", )
-//    }
+    if(fork() == 0) {
+        execlp("ping", "ping", ip, NULL);
 
+        printf("execlp error\n");
+        exit(10);
+    }
 
-//    close(sock);
+    close(sock);
 
     return 0;
 }
 
-void string_to_ip(const char *ip_port, char *pointer) {
-    char ip[20];
+void string_to_ip_port(char *ip_port, char *ptr_ip, int *ptr_port) {
+    char _ip[20];
     int index = 0;
 
     while(ip_port[index] != ':') {
-        ip[index] = ip_port[index++];
+        _ip[index] = ip_port[index];
+        index++;
     }
+    _ip[index] = '\0';
+    memcpy(ptr_ip, _ip, 20);
 
-    memcpy(pointer, ip, 20);
+    char *temp = &ip_port[index+1];
+    *ptr_port = atoi(temp);
 }

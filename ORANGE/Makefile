@@ -3,7 +3,7 @@ OBJECT = $(SRCS:.c=.o)
 
 all : orange
 banana : $(OBJECT)
-	$(CC) -o $@ $^
+	$(CC) -g -o $@ $^
 
 clean :
 	rm *.o orange
