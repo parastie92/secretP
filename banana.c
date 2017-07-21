@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 //  server_addr.sin_port        = htons(4000);
     server_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
 
-    sprintf(message_send, "%d%c", 0x01, 'O');
+    sprintf(message_send, "%d%c", 0x01, 'B');
 //  printf("message : %s  size : %ld\n", message_send, strlen(message_send));
 
     sendto(sock, message_send, strlen(message_send), 0,
