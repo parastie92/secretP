@@ -10,15 +10,25 @@
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
 
+void string_to_ip(const char *ip_port, char *pointer);
+
 int main(int argc, char **argv) {
-	int sock;
+/*  
+
+    if(argc != 2) {
+        printf("plz input : ./orange \"session_id(1~9)\"\n");
+        exit(1);
+    }
+
+	int sock, sock_main;
     int server_addr_size;
 
-    struct sockaddr_in server_addr;
+    struct sockaddr_in server_addr, server_main_addr;
 
     char *dummy = "I'm dummy^^";
     char message[BUFF_SIZE];
     char apple_ip[BUFF_SIZE];
+    char banana_ip[BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
 
@@ -35,25 +45,75 @@ int main(int argc, char **argv) {
     if(sendto(sock, dummy, strlen(dummy), 0,
             (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("sendto error!");
-        exit(1);
+        exit(2);
     }
 
     server_addr_size  = sizeof(server_addr);
     if(recvfrom(sock, apple_ip, BUFF_SIZE, 0,
             (struct sockaddr*)&server_addr, &server_addr_size) < 0) {
         perror("recvfrom error!");
-        exit(1);
+        exit(3);
     }
 
-    printf("receive_ip: %s \n", apple_ip);
-    sprintf(message, "%d%c%s" , 0x01, 'B', apple_ip);
-
-    printf("message : %s\n", message);
-
-//  sprintf(message_send, "%d%c", 0x01, 'B');
-//  printf("message : %s  size : %ld\n", message_send, strlen(message_send));
+    printf("receive_ip by demon: %s \n", apple_ip);
+    sprintf(message, "%d%c%s" , atoi(argv[1]), 'O', apple_ip);
+    printf("message to main_server: %s\n", message);
 
     close(sock);
 
+    sock_main = socket(AF_INET, SOCK_STREAM, 0);
+
+    if(-1 == sock_main) {
+        perror("sock_main error");
+        exit(1);
+    }
+
+    memset(&server_addr, 0, sizeof(server_main_addr));
+    server_main_addr.sin_family      = AF_INET;
+    server_main_addr.sin_port        = htons(APPLE_M_PORT);
+    server_main_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
+
+    if(bind(sock_main, (struct sockaddr *)&server_main_addr, sizeof(server_main_addr)) < 0) {
+        perror("bind error");
+        exit(4);
+    }
+
+    if(send(sock_main, message, sizeof(message), 0) < 0) {
+        perror("send error");
+        exit(2);
+    }
+
+    if(send(sock_main, banana_ip, sizeof(banana_ip), 0) < 0) {
+        perror("recv error");
+        exit(3);
+    }
+
+    printf("banana_ip and port : %s\n", banana_ip);
+
+    close(sock_main);
+ */
+    char ip[20];
+    string_to_ip("100.200.300.340:2039", ip);
+
+    printf("ip : %s\n", ip);
+
+//    if(fork() == 0) {
+//        execp("ping", )
+//    }
+
+
+//    close(sock);
+
     return 0;
+}
+
+void string_to_ip(const char *ip_port, char *pointer) {
+    char ip[20];
+    int index = 0;
+
+    while(ip_port[index] != ':') {
+        ip[index] = ip_port[index++];
+    }
+
+    memcpy(pointer, ip, 20);
 }

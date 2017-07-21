@@ -11,6 +11,11 @@
 #define APPLE_M_PORT 1509
 
 int main(int argc, char **argv) {
+    if(argc != 2) {
+        printf("plz input : ./banana \"session_id(1~9)\"\n");
+        exit(1);
+    }
+
 	int sock, sock_main;
     int server_addr_size;
 
@@ -19,6 +24,7 @@ int main(int argc, char **argv) {
     char *dummy = "I'm dummy^^";
     char message[BUFF_SIZE];
     char apple_ip[BUFF_SIZE];
+    char orange_ip[BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
 
@@ -45,12 +51,9 @@ int main(int argc, char **argv) {
         exit(3);
     }
 
-    printf("receive_ip: %s \n", apple_ip);
-    sprintf(message, "%d%c%s" , 0x01, 'B', apple_ip);
-    printf("message : %s\n", message);
-
-//  sprintf(message_send, "%d%c", 0x01, 'B');
-//  printf("message : %s  size : %ld\n", message_send, strlen(message_send));
+    printf("receive_ip by demon: %s \n", apple_ip);
+    sprintf(message, "%d%c%s" , atoi(argv[1]), 'B', apple_ip);
+    printf("message to main_server: %s\n", message);
 
     close(sock);
 
@@ -75,6 +78,13 @@ int main(int argc, char **argv) {
         perror("send error");
         exit(2);
     }
+
+    if(send(sock_main, orange_ip, sizeof(orange_ip), 0) < 0) {
+        perror("recv error");
+        exit(3);
+    }
+
+    printf("orange_ip and port : %s\n", orange_ip);
 
     close(sock_main);
 
