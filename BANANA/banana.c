@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define BUFF_SIZE 30
+#define BUFF_SIZE 40
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
 
@@ -32,17 +32,11 @@ int main(int argc, char **argv) {
     server_addr.sin_port        = htons(APPLE_D_PORT);
     server_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
 
-    size_t temp;
-
-    if((temp = sendto(sock, dummy, strlen(dummy), 0,
-            (struct sockaddr*)&server_addr, sizeof(server_addr))) < 0) {
+    if(sendto(sock, dummy, strlen(dummy), 0,
+            (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("sendto error!");
         exit(1);
     }
-
-    printf("size : %ld\n", temp);
-
-
 
     server_addr_size  = sizeof(server_addr);
     if(recvfrom(sock, apple_ip, BUFF_SIZE, 0,
@@ -52,6 +46,9 @@ int main(int argc, char **argv) {
     }
 
     printf("receive_ip: %s \n", apple_ip);
+    sprintf(message, "%d%c%s" , 0x01, 'B', apple_ip);
+
+    printf("message : %s\n", message);
 
 //  sprintf(message_send, "%d%c", 0x01, 'B');
 //  printf("message : %s  size : %ld\n", message_send, strlen(message_send));
