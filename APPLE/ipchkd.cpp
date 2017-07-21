@@ -2,6 +2,8 @@
 #define IPCHKD
 
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -9,7 +11,6 @@
 
 #include <iostream>
 #include <string>
-#include <unistd.h>
 
 void ip_check_deamon(int _port)
 {
