@@ -47,7 +47,6 @@ int main(int argc, char **argv) {
 
     printf("receive_ip: %s \n", apple_ip);
     sprintf(message, "%d%c%s" , 0x01, 'B', apple_ip);
-
     printf("message : %s\n", message);
 
 //  sprintf(message_send, "%d%c", 0x01, 'B');

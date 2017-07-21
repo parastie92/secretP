@@ -1,16 +1,9 @@
-CXX = g++
-CC 	= gcc
+SRCS   = $(wildcard *.c)
+OBJECT = $(SRCS:.c=.o)
 
-LDFLAGS = -g
-CXXFLAGS = -g -c
-
-all : banana banana.o
-
-banana : banana.o
-	$(CC) $(LDFLAGS) -o banana banana.o
-
-banana.o : banana.c
-	$(CC) $(CXXFLAGS) -o banana.o banana.c
+all : banana
+banana : $(OBJECT)
+	$(CC) -o $@ $^
 
 clean :
 	rm *.o banana
