@@ -4,17 +4,14 @@ CC 	= gcc
 LDFLAGS = -g
 CXXFLAGS = -g -c
 
-all : main nvdimm.o main.o
+all : banana banana.o
 
-main : main.o nvdimm.o
-	$(CXX) $(LDFLAGS) -o main main.o nvdimm.o
+banana : banana.o
+	$(CC) $(LDFLAGS) -o banana banana.o
 
-nvdimm.o : nvdimm.cpp nvdimm.h
-	$(CXX) $(CXXFLAGS) -o nvdimm.o nvdimm.cpp
-
-main.o : main.cpp classNV.h nvdimm.h
-	$(CXX) $(CXXFLAGS) -o main.o main.cpp
+banana.o : banana.c
+	$(CC) $(CXXFLAGS) -o banana.o banana.c
 
 clean :
-	rm *.o main
+	rm *.o banana
 
