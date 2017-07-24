@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
     char *dummy = "I'm dummy^^";
     char *message_check = "1";
     char message[BUFF_SIZE];
+    char message_recv[10];
     char apple_ip[BUFF_SIZE];
     char orange_ip[BUFF_SIZE];
 
@@ -86,12 +87,13 @@ int main(int argc, char **argv) {
         exit(2);
     }
 
-    if(recv(sock_main, message_check, sizeof(message_check), 0) < 0) {
+    if(recv(sock_main, message_recv
+                , sizeof(message_recv), 0) < 0) {
         perror("recv error");
         exit(3);
     }
 
-    printf("check end : %s\n", message_check);
+    printf("check end : %s\n", message_recv);
 
     if(recv(sock_main, orange_ip, sizeof(orange_ip), 0) < 0) {
         perror("recv error");
