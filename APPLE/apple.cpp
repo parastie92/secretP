@@ -62,6 +62,7 @@ char s_buffer[1024];
         while(true)
         {
             int client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &adr_sz );
+	    std::cout<<"accepted!"<<std::endl;
             if(client_socket < 0)
             {
                 std::cerr<<"invalid socket !"<<std::endl;

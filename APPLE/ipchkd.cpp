@@ -49,8 +49,7 @@ void ip_check_deamon(int _port)
 
             userIP = inet_ntoa(clnt_adr.sin_addr);
             userPort = clnt_adr.sin_port;
-            printf("%s:%d - ",userIP.c_str(),userPort);
-            //            printf("%s\n",&dummy);
+            printf("ipchkd > %s:%d - ",userIP.c_str(),userPort);
             buffer+=userIP;
             buffer+=':';
             buffer+=std::to_string(userPort);
