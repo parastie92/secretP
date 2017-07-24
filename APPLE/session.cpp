@@ -45,15 +45,14 @@ void session(int socket,Connection* con,char type)
     {
       std::cerr<<"type error!"<<std::endl;
     }
+        send(con->orangeSocket, con->bananaIP.c_str(), con->bananaIP.size(), 0);
+        send(con->bananaSocket, con->orangeIP.c_str(), con->orangeIP.size(), 0);
 
-    //listen command
     while(true)
     {
       recv(socket, r_buffer, sizeof(char),0);
       if(r_buffer[0] == 0x01)
       {
-        send(con->orangeSocket, con->bananaIP.c_str(), con->bananaIP.size(), 0);
-        send(con->bananaSocket, con->orangeIP.c_str(), con->orangeIP.size(), 0);
       }
       else
       {
