@@ -23,9 +23,10 @@ int main(int argc, char **argv) {
 	int sock, sock_main;
     int server_addr_size;
 
-    struct sockaddr_in server_addr, server_main_addr;
+    struct sockaddr_in server_addr, server_main_addr, banana_addr;
 
     char *dummy = "I'm dummy^^";
+    char *message_check = "1";
     char message[BUFF_SIZE];
     char apple_ip[BUFF_SIZE];
     char banana_ip[BUFF_SIZE];
@@ -86,6 +87,14 @@ int main(int argc, char **argv) {
         exit(2);
     }
 
+    if(recv(sock_main, message_check, sizeof(message_check
+                    ), 0) < 0) {
+        perror("recv error");
+        exit(3);
+    }
+
+    printf("check end : %s\n", message_check);
+
     if(recv(sock_main, banana_ip, sizeof(banana_ip), 0) < 0) {
         perror("recv error");
         exit(3);
@@ -93,11 +102,9 @@ int main(int argc, char **argv) {
 
     printf("banana_ip and port : %s\n", banana_ip);
 
-    close(sock_main);
+//    close(sock_maiin);
 
-    pid_t child;
     char ip[20];
-    int status;
     int *port = (int*)malloc(sizeof(int));
 
     string_to_ip_port(banana_ip, ip, port);
@@ -105,19 +112,17 @@ int main(int argc, char **argv) {
     printf("ip : %s\n", ip);
     printf("port : %d\n", *port);
 
-    while(1) {
-        if(fork() == 0) {
-            execlp("ping", "ping", ip, NULL);
+//  send to banana
+    memset(&banana_addr, 0, sizeof(banana_addr));
+    banana_addr.sin_family      = AF_INET;
+    banana_addr.sin_port        = htons(*port);
+    banana_addr.sin_addr.s_addr = inet_addr(ip);
 
-            printf("execlp error\n");
-            exit(10);
-        }
-
-        wait(&status);
-
-        if(WIFEXITED(status)) break;
-
-        sleep(3);
+    if(sendto(sock, message_check, 10, 0,
+            (struct sockaddr*)&banana_addr,
+            sizeof(banana_addr)) < 0) {
+        perror("sendto error!");
+        exit(2);
     }
 
     free(port);
