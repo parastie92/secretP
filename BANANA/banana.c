@@ -119,19 +119,25 @@ int main(int argc, char **argv) {
     orange_addr.sin_port        = htons(*port);
     orange_addr.sin_addr.s_addr = inet_addr(ip);
 
-    if(sendto(sock, message_check, 1, 0,
-            (struct sockaddr*)&orange_addr,
-            sizeof(orange_addr)) < 0) {
-        perror("sendto error!");
-        exit(2);
-    }
+    size_t data_size;
 
-    orange_addr_size = sizeof(orange_addr);
-    if(recvfrom(sock, message_recv, BUFF_SIZE, 0,
-            (struct sockaddr*)&orange_addr,
-            &orange_addr_size) < 0) {
-        perror("recvfrom error!");
-        exit(3);
+    for(;;) {
+        if(sendto(sock, message_check, 1, 0,
+                (struct sockaddr*)&orange_addr,
+                sizeof(orange_addr)) < 0) {
+            perror("sendto error!");
+            exit(2);
+        }
+
+        orange_addr_size = sizeof(orange_addr);
+        if((data_size = recvfrom(sock, message_recv, BUFF_SIZE, 0,
+                (struct sockaddr*)&orange_addr,
+                &orange_addr_size)) < 0) {
+            perror("recvfrom error!");
+            exit(3);
+        }
+
+        if(data_size > 0) break;
     }
 
     printf("ping result : %s\n", message_recv);

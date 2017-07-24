@@ -123,19 +123,24 @@ int main(int argc, char **argv) {
     banana_addr.sin_port        = htons(*port);
     banana_addr.sin_addr.s_addr = inet_addr(ip);
 
-    if(sendto(sock, message_check, 1, 0,
-            (struct sockaddr*)&banana_addr,
-            sizeof(banana_addr)) < 0) {
-        perror("sendto error!");
-        exit(2);
-    }
+    size_t data_size;
+    for(;;) {
+        if(sendto(sock, message_check, 1, 0,
+                (struct sockaddr*)&banana_addr,
+                sizeof(banana_addr)) < 0) {
+            perror("sendto error!");
+            exit(2);
+        }
 
-    banana_addr_size = sizeof(banana_addr);
-    if(recvfrom(sock, message_recv, BUFF_SIZE, 0,
-            (struct sockaddr*)&banana_addr,
-            &banana_addr_size) < 0) {
-        perror("recvfrom error!");
-        exit(3);
+        banana_addr_size = sizeof(banana_addr);
+        if((data_size = recvfrom(sock, message_recv, BUFF_SIZE, 0,
+                (struct sockaddr*)&banana_addr,
+                &banana_addr_size)) < 0) {
+            perror("recvfrom error!");
+            exit(3);
+        }
+
+        if(data_size > 0) break;
     }
 
     printf("ping result : %s\n", message_recv);
