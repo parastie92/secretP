@@ -21,14 +21,7 @@ extern void session(int socket, Connection* con, char type);
 
 std::vector<std::thread> sessions;
 std::map<char,Connection> connected;
-void test()
-{
-    return;
-}
-void testarg(int abc)
-{
-    std::cout<<abc<<std::endl;
-}
+
 int main()
 {
 char r_buffer[1024];
@@ -82,9 +75,10 @@ char s_buffer[1024];
             {
                 //found
             }
-            con = &connected.at(r_buffer[0]);
-
+            con = &(connected.at(r_buffer[0]));
             //create thread(start session)
+            sessions.push_back(std::thread(session,client_socket,con,r_buffer[1]));
+
         }
 
     }
