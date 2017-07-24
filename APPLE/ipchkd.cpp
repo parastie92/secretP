@@ -53,7 +53,7 @@ void ip_check_deamon(int _port)
             buffer+=userIP;
             buffer+=':';
             buffer+=std::to_string(userPort);
-	buffer+='\n';
+	buffer+='\0';
             int send = (int)sendto(serv_socket, buffer.c_str(),buffer.size(), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz);
             std::cout<<buffer<<std::endl;
             buffer.clear();
