@@ -119,7 +119,6 @@ int main(int argc, char **argv) {
 
 //  send to banana
 
-    sock_banana = socket(PF_INET, SOCK_DGRAM, 0);
     memset(&banana_addr, 0, sizeof(banana_addr));
     banana_addr.sin_family      = AF_INET;
     banana_addr.sin_port        = htons(*port);
@@ -127,7 +126,7 @@ int main(int argc, char **argv) {
 
     size_t data_size;
     for(;;) {
-        if(sendto(sock_banana, message_check, 1, 0,
+        if(sendto(sock, message_check, 1, 0,
                     (struct sockaddr*)&banana_addr,
                     sizeof(banana_addr)) < 0) {
             perror("sendto error!");
@@ -135,7 +134,7 @@ int main(int argc, char **argv) {
         }
 
         banana_addr_size = sizeof(banana_addr);
-        if((data_size = recvfrom(sock_banana, message_recv, BUFF_SIZE, 0,
+        if((data_size = recvfrom(sock, message_recv, BUFF_SIZE, 0,
                 (struct sockaddr*)&banana_addr,
                 &banana_addr_size)) < 0) {
             perror("recvfrom error!");

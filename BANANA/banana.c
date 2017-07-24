@@ -114,7 +114,6 @@ int main(int argc, char **argv) {
 
 //  send to orange
 
-    sock_orange = socket(PF_INET, SOCK_DGRAM, 0);
     memset(&orange_addr, 0, sizeof(orange_addr));
     orange_addr.sin_family      = AF_INET;
     orange_addr.sin_port        = htons(*port);
@@ -124,7 +123,7 @@ int main(int argc, char **argv) {
     for(;;) {
         printf("debug\n");
         orange_addr_size = sizeof(orange_addr);
-        if((data_size = recvfrom(sock_orange, message_recv, sizeof(message_check), 0,
+        if((data_size = recvfrom(sock, message_recv, sizeof(message_check), 0,
                 (struct sockaddr*)&orange_addr,
                 &orange_addr_size)) < 0) {
             perror("recvfrom error!");
@@ -135,7 +134,7 @@ int main(int argc, char **argv) {
 
         if(data_size > 0) printf("ping result : %s\n", message_recv);
 
-        if(sendto(sock_orange, message_check, sizeof(message_check), 0,
+        if(sendto(sock, message_check, sizeof(message_check), 0,
                 (struct sockaddr*)&orange_addr,
                 sizeof(orange_addr)) < 0) {
             perror("sendto error!");
