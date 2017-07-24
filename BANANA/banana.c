@@ -58,24 +58,22 @@ int main(int argc, char **argv) {
     }
 
     printf("receive_ip by demon: %s \n", apple_ip);
-    sprintf(message, "%d%c%s" , atoi(argv[1]), 'O', apple_ip);
+    sprintf(message, "%d%c%s" , atoi(argv[1]), 'b', apple_ip);
     printf("message to main_server: %s\n", message);
 
-    close(sock);
-
-    sock_main = socket(AF_INET, SOCK_STREAM, 0);
+    sock_main = socket(PF_INET, SOCK_STREAM, 0);
 
     if(-1 == sock_main) {
         perror("sock_main error");
         exit(1);
     }
 
-    memset(&server_addr, 0, sizeof(server_main_addr));
+    memset(&server_main_addr, 0, sizeof(server_main_addr));
     server_main_addr.sin_family      = AF_INET;
     server_main_addr.sin_port        = htons(APPLE_M_PORT);
     server_main_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
 
-    if(bind(sock_main, (struct sockaddr *)&server_main_addr,
+    if(connect(sock_main, (struct sockaddr *)&server_main_addr,
                 sizeof(server_main_addr)) < 0) {
         perror("bind error");
         exit(4);
@@ -86,14 +84,14 @@ int main(int argc, char **argv) {
         exit(2);
     }
 
-    if(send(sock_main, orange_ip, sizeof(orange_ip), 0) < 0) {
+    if(recv(sock_main, orange_ip, sizeof(orange_ip), 0) < 0) {
         perror("recv error");
         exit(3);
     }
 
     printf("banana_ip and port : %s\n", orange_ip);
 
-    close(sock_main);
+//    close(sock_main);
 
     pid_t child;
     char ip[20];
