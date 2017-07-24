@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-	int sock, sock_main;
+	int sock, sock_main, sock_banana;
     int server_addr_size, banana_addr_size;
 
     struct sockaddr_in server_addr, server_main_addr, banana_addr;
@@ -33,8 +33,6 @@ int main(int argc, char **argv) {
     char banana_ip[BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
-    int optval = 1;
-    setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 
     if(-1 == sock) {
         perror("sock error");
@@ -121,17 +119,15 @@ int main(int argc, char **argv) {
 
 //  send to banana
 
+    sock_banana = socket(PF_INET, SOCK_DGRAM, 0);
     memset(&banana_addr, 0, sizeof(banana_addr));
     banana_addr.sin_family      = AF_INET;
     banana_addr.sin_port        = htons(*port);
     banana_addr.sin_addr.s_addr = inet_addr(ip);
 
-    printf("banana ip : %u \n", banana_addr.sin_addr.s_addr);
-    printf("banana port : %d \n", banana_addr.sin_port);
-
     size_t data_size;
     for(;;) {
-        if(sendto(sock, message_check, 1, 0,
+        if(sendto(sock_banana, message_check, 1, 0,
                     (struct sockaddr*)&banana_addr,
                     sizeof(banana_addr)) < 0) {
             perror("sendto error!");
@@ -139,7 +135,7 @@ int main(int argc, char **argv) {
         }
 
         banana_addr_size = sizeof(banana_addr);
-        if((data_size = recvfrom(sock, message_recv, BUFF_SIZE, 0,
+        if((data_size = recvfrom(sock_banana, message_recv, BUFF_SIZE, 0,
                 (struct sockaddr*)&banana_addr,
                 &banana_addr_size)) < 0) {
             perror("recvfrom error!");
