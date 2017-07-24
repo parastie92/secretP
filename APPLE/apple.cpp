@@ -69,16 +69,19 @@ char s_buffer[1024];
             if(connected.find(r_buffer[0]) == connected.end())
             {
                 //not found
+                std::cout<<"create connection "<<r_buffer[0]<<std::endl;
                 connected.insert(std::make_pair(r_buffer[0],Connection(r_buffer[0])));
             }
             else
             {
                 //found
+                std::cout<<"open connection "<<r_buffer[0]<<std::endl;
             }
             con = &(connected.at(r_buffer[0]));
             //create thread(start session)
+            std::cout<<"create thread("<<r_buffer[1]<<") ID: "<<r_buffer[0]<<std::endl;
             sessions.push_back(std::thread(session,client_socket,con,r_buffer[1]));
-
+            
         }
 
     }

@@ -5,11 +5,13 @@
 #include <string>
 
 class Connection {
-private:
-    std::string  banana;
-    std::string  orange;
-    char    id;
 public:
+    std::string  bananaIP;
+    std::string  orangeIP;
+    char         id;
+    int          bananaSocket;  //default : 0
+    int          orangeSocket;
+// public:
     void    setBanana(std::string _banana);
     void    setOrange(std::string _orange);
     Connection(char _id);
