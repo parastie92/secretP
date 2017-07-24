@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 
 #define BUFF_SIZE 40
 #define APPLE_D_PORT 1500
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
     }
 
     printf("receive_ip by demon: %s \n", apple_ip);
-    sprintf(message, "%d%c%s" , atoi(argv[1]), 'O', apple_ip);
+    sprintf(message, "%d%c%s" , atoi(argv[1]), 'o', apple_ip);
     printf("message to main_server: %s\n", message);
 
     close(sock);
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
     server_main_addr.sin_port        = htons(APPLE_M_PORT);
     server_main_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
 
-    if(bind(sock_main, (struct sockaddr *)&server_main_addr,
+    if(connect(sock_main, (struct sockaddr *)&server_main_addr,
                 sizeof(server_main_addr)) < 0) {
         perror("bind error");
         exit(4);
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
         exit(2);
     }
 
-    if(send(sock_main, banana_ip, sizeof(banana_ip), 0) < 0) {
+    if(recv(sock_main, banana_ip, sizeof(banana_ip), 0) < 0) {
         perror("recv error");
         exit(3);
     }
@@ -94,7 +95,9 @@ int main(int argc, char **argv) {
 
     close(sock_main);
 
+    pid_t child;
     char ip[20];
+    int status;
     int *port = (int*)malloc(sizeof(int));
 
     string_to_ip_port(banana_ip, ip, port);
@@ -102,11 +105,19 @@ int main(int argc, char **argv) {
     printf("ip : %s\n", ip);
     printf("port : %d\n", *port);
 
-    if(fork() == 0) {
-        execlp("ping", "ping", ip, NULL);
+    while(1) {
+        if(fork() == 0) {
+            execlp("ping", "ping", ip, NULL);
 
-        printf("execlp error\n");
-        exit(10);
+            printf("execlp error\n");
+            exit(10);
+        }
+
+        wait(&status);
+
+        if(WIFEXITED(status)) break;
+
+        sleep(3);
     }
 
     free(port);

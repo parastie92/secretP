@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
         exit(4);
     }
 
+    //initial message
     if(send(sock_main, message, sizeof(message), 0) < 0) {
         perror("send error");
         exit(2);
