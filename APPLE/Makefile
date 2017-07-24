@@ -1,10 +1,9 @@
 CXX = g++
 
-CXXFLAGS =
-CXXFLAGS += -std=c++14
+CXXFLAGS = -Wall -g -std=c++0x -pthread
 
-all : 
-	$(CXX) $(CXXLDFLAGS) -o apple  apple.cpp ipchkd.cpp Connection.cpp session.cpp -std=c++14
+all :
+	$(CXX) $(CXXFLAGS) apple.cpp ipchkd.cpp Connection.cpp session.cpp -o apple
 
 clean :
 	rm apple

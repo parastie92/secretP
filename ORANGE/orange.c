@@ -42,14 +42,16 @@ int main(int argc, char **argv) {
     server_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
 
     if(sendto(sock, dummy, strlen(dummy), 0,
-            (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+            (struct sockaddr*)&server_addr,
+            sizeof(server_addr)) < 0) {
         perror("sendto error!");
         exit(2);
     }
 
     server_addr_size  = sizeof(server_addr);
     if(recvfrom(sock, apple_ip, BUFF_SIZE, 0,
-            (struct sockaddr*)&server_addr, &server_addr_size) < 0) {
+            (struct sockaddr*)&server_addr,
+            &server_addr_size) < 0) {
         perror("recvfrom error!");
         exit(3);
     }
@@ -72,7 +74,8 @@ int main(int argc, char **argv) {
     server_main_addr.sin_port        = htons(APPLE_M_PORT);
     server_main_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
 
-    if(bind(sock_main, (struct sockaddr *)&server_main_addr, sizeof(server_main_addr)) < 0) {
+    if(bind(sock_main, (struct sockaddr *)&server_main_addr,
+                sizeof(server_main_addr)) < 0) {
         perror("bind error");
         exit(4);
     }
@@ -106,12 +109,14 @@ int main(int argc, char **argv) {
         exit(10);
     }
 
+    free(port);
     close(sock);
 
     return 0;
 }
 
-void string_to_ip_port(char *ip_port, char *ptr_ip, int *ptr_port) {
+void string_to_ip_port(char *ip_port, char *ptr_ip,
+        int *ptr_port) {
     char _ip[20];
     int index = 0;
 

@@ -4,6 +4,7 @@
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <iostream>
 #include <string>
@@ -11,6 +12,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+
 #include "Connection.hpp"
 
 #define IPCHKD_PORT 1500
