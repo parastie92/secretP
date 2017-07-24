@@ -126,8 +126,8 @@ int main(int argc, char **argv) {
     size_t data_size;
     for(;;) {
         if(sendto(sock, message_check, 1, 0,
-                (struct sockaddr*)&banana_addr,
-                sizeof(banana_addr)) < 0) {
+                    (struct sockaddr*)&banana_addr,
+                    sizeof(banana_addr)) < 0) {
             perror("sendto error!");
             exit(2);
         }
@@ -140,13 +140,11 @@ int main(int argc, char **argv) {
             exit(3);
         }
 
-        if(data_size > 0) break;
+        if(data_size > 0) printf("ping result : %s\n", message_recv);
     }
 
-    printf("ping result : %s\n", message_recv);
-
-    free(port);
-    close(sock);
+//    free(port);
+//    close(sock);
 
     return 0;
 }

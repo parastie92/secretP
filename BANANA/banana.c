@@ -113,15 +113,14 @@ int main(int argc, char **argv) {
     printf("port : %d\n", *port);
 
 //  send to orange
-
     memset(&orange_addr, 0, sizeof(orange_addr));
     orange_addr.sin_family      = AF_INET;
     orange_addr.sin_port        = htons(*port);
     orange_addr.sin_addr.s_addr = inet_addr(ip);
 
     size_t data_size;
-
     for(;;) {
+//      printf("debug\n");
         if(sendto(sock, message_check, 1, 0,
                 (struct sockaddr*)&orange_addr,
                 sizeof(orange_addr)) < 0) {
@@ -137,13 +136,12 @@ int main(int argc, char **argv) {
             exit(3);
         }
 
-        if(data_size > 0) break;
+        if(data_size > 0) printf("ping result : %s\n", message_recv);
     }
 
-    printf("ping result : %s\n", message_recv);
 
-    free(port);
-    close(sock);
+//    free(port);
+//    close(sock);
 
     return 0;
 }
