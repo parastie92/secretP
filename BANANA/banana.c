@@ -33,6 +33,8 @@ int main(int argc, char **argv) {
     char orange_ip[BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
+    int optval = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 
     if(-1 == sock) {
         perror("sock error");
@@ -120,23 +122,25 @@ int main(int argc, char **argv) {
 
     size_t data_size;
     for(;;) {
-//      printf("debug\n");
-        if(sendto(sock, message_check, 1, 0,
-                (struct sockaddr*)&orange_addr,
-                sizeof(orange_addr)) < 0) {
-            perror("sendto error!");
-            exit(2);
-        }
-
+        printf("debug\n");
         orange_addr_size = sizeof(orange_addr);
-        if((data_size = recvfrom(sock, message_recv, BUFF_SIZE, 0,
+        if((data_size = recvfrom(sock, message_recv, sizeof(message_check), 0,
                 (struct sockaddr*)&orange_addr,
                 &orange_addr_size)) < 0) {
             perror("recvfrom error!");
             exit(3);
         }
 
+        printf("dats_size : %ld\n", data_size);
+
         if(data_size > 0) printf("ping result : %s\n", message_recv);
+
+        if(sendto(sock, message_check, sizeof(message_check), 0,
+                (struct sockaddr*)&orange_addr,
+                sizeof(orange_addr)) < 0) {
+            perror("sendto error!");
+            exit(2);
+        }
     }
 
 

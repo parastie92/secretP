@@ -33,6 +33,8 @@ int main(int argc, char **argv) {
     char banana_ip[BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
+    int optval = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 
     if(-1 == sock) {
         perror("sock error");
