@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-	int sock, sock_main;
+	int sock, sock_main, sock_orange;
     int server_addr_size, banana_addr_size;
 
     struct sockaddr_in server_addr, server_main_addr, banana_addr;
@@ -120,6 +120,8 @@ int main(int argc, char **argv) {
     printf("port : %d\n", *port);
 
 //  send to banana
+
+    sock_orange = socket(PF_INET, SOCK_DGRAM, 0);
     memset(&banana_addr, 0, sizeof(banana_addr));
     banana_addr.sin_family      = AF_INET;
     banana_addr.sin_port        = htons(*port);
