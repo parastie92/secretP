@@ -95,6 +95,11 @@ int main(int argc, char **argv) {
 
     printf("check end : %s\n", message_check);
 
+    if(send(sock_main, message_check, sizeof(message_check), 0) < 0) {
+        perror("send error");
+        exit(2);
+    }
+
     if(recv(sock_main, banana_ip, sizeof(banana_ip), 0) < 0) {
         perror("recv error");
         exit(3);
