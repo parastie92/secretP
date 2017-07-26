@@ -27,7 +27,7 @@ std::map<char,Connection> connected;
 int main()
 {
 char r_buffer[1024];
-char s_buffer[1024];
+//char s_buffer[1024];
     // launch ipchkd
     if(fork() == 0)
     {

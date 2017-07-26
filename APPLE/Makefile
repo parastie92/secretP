@@ -6,4 +6,4 @@ all :
 	$(CXX) $(CXXFLAGS) apple.cpp ipchkd.cpp Connection.cpp session.cpp -o apple
 
 clean :
-	rm apple
+	rm -r apple apple.dSYM

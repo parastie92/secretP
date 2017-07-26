@@ -10,6 +10,7 @@
 #define BUFF_SIZE 40
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
+#define SERVER_IP "127.0.0.1"
 
 void string_to_ip_port(char *ip_port, char *ptr_ip, int *port);
 
@@ -20,17 +21,17 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-	int sock, sock_main, sock_orange;
-    int server_addr_size, orange_addr_size;
+    int sock, sock_main;
+    int server_addr_size;
+    socklen_t orange_addr_size;
 
     struct sockaddr_in server_addr, server_main_addr, orange_addr;
 
-    char *dummy = "I'm dummy^^";
-    char *message_check = "1";
-    char message[BUFF_SIZE];
-    char message_recv[10];
-    char apple_ip[BUFF_SIZE];
+    char my_ip[BUFF_SIZE];
     char orange_ip[BUFF_SIZE];
+
+    char s_buffer[BUFF_SIZE];
+    char r_buffer[BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
 
@@ -42,26 +43,26 @@ int main(int argc, char **argv) {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family      = AF_INET;
     server_addr.sin_port        = htons(APPLE_D_PORT);
-    server_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
+    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-    if(sendto(sock, dummy, strlen(dummy), 0,
-            (struct sockaddr*)&server_addr,
-            sizeof(server_addr)) < 0) {
+    if(sendto(sock, s_buffer, sizeof(char), 0,
+                (struct sockaddr*)&server_addr,
+                sizeof(server_addr)) < 0) {
         perror("sendto error!");
         exit(2);
     }
 
     server_addr_size  = sizeof(server_addr);
-    if(recvfrom(sock, apple_ip, BUFF_SIZE, 0,
-            (struct sockaddr*)&server_addr,
-            &server_addr_size) < 0) {
+    if(recvfrom(sock, my_ip, BUFF_SIZE, 0,
+                NULL,
+                NULL) < 0) {
         perror("recvfrom error!");
         exit(3);
     }
 
-    printf("receive_ip by demon: %s \n", apple_ip);
-    sprintf(message, "%d%c%s" , atoi(argv[1]), 'b', apple_ip);
-    printf("message to main_server: %s\n", message);
+    printf("receive_ip by demon: %s \n", my_ip);
+    sprintf(s_buffer, "%d%c%s" , atoi(argv[1]), 'b', my_ip);
+    printf("message to main_server: %s\n", s_buffer);
 
     sock_main = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -73,7 +74,7 @@ int main(int argc, char **argv) {
     memset(&server_main_addr, 0, sizeof(server_main_addr));
     server_main_addr.sin_family      = AF_INET;
     server_main_addr.sin_port        = htons(APPLE_M_PORT);
-    server_main_addr.sin_addr.s_addr = inet_addr("52.78.214.70");
+    server_main_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
     if(connect(sock_main, (struct sockaddr *)&server_main_addr,
                 sizeof(server_main_addr)) < 0) {
@@ -82,18 +83,18 @@ int main(int argc, char **argv) {
     }
 
     //initial message
-    if(send(sock_main, message, sizeof(message), 0) < 0) {
+    if(send(sock_main, s_buffer, strlen(s_buffer), 0) < 0) {
         perror("send error");
         exit(2);
     }
 
-    if(recv(sock_main, message_recv
-                , sizeof(message_recv), 0) < 0) {
+    if(recv(sock_main, r_buffer
+                , sizeof(r_buffer), 0) < 0) {
         perror("recv error");
         exit(3);
     }
 
-    printf("check end : %s\n", message_recv);
+    printf("check ack : %c\n", r_buffer[0]);
 
     if(recv(sock_main, orange_ip, sizeof(orange_ip), 0) < 0) {
         perror("recv error");
@@ -102,49 +103,46 @@ int main(int argc, char **argv) {
 
     printf("orange_ip and port : %s\n", orange_ip);
 
-//    close(sock_main);
+    //    close(sock_main);
 
     char ip[20];
-    int *port = (int*)malloc(sizeof(int));
+    int port = -1;
 
-    string_to_ip_port(orange_ip, ip, port);
+    string_to_ip_port(orange_ip, ip, &port);
 
     printf("ip : %s\n", ip);
-    printf("port : %d\n", *port);
+    printf("port : %d\n", port);
 
-//  send to orange
+    //  send to orange
 
     memset(&orange_addr, 0, sizeof(orange_addr));
     orange_addr.sin_family      = AF_INET;
-    orange_addr.sin_port        = htons(*port);
+    orange_addr.sin_port        = htons(port);
     orange_addr.sin_addr.s_addr = inet_addr(ip);
 
-    size_t data_size;
+    int data_size;
+    orange_addr_size = sizeof(orange_addr);
+
     for(;;) {
-        printf("debug\n");
-        orange_addr_size = sizeof(orange_addr);
-        if((data_size = recvfrom(sock, message_recv, sizeof(message_check), 0,
-                (struct sockaddr*)&orange_addr,
-                &orange_addr_size)) < 0) {
+
+        if((data_size = sendto(sock, s_buffer, sizeof(char), 0,
+                    (struct sockaddr*)&orange_addr,
+                    sizeof(orange_addr))) < 0) {
+            perror("sendto error!");
+            exit(2);
+        }
+        printf("%dbytes send to orange\n",data_size);
+
+        if((data_size = recvfrom(sock, s_buffer, sizeof(s_buffer), 0,
+                        NULL,
+                        NULL)) < 0) {
             perror("recvfrom error!");
             exit(3);
         }
 
-        printf("dats_size : %ld\n", data_size);
+        printf("received %dbytes \n", data_size);
 
-        if(data_size > 0) printf("ping result : %s\n", message_recv);
-
-        if(sendto(sock, message_check, sizeof(message_check), 0,
-                (struct sockaddr*)&orange_addr,
-                sizeof(orange_addr)) < 0) {
-            perror("sendto error!");
-            exit(2);
-        }
     }
-
-
-//    free(port);
-//    close(sock);
 
     return 0;
 }
