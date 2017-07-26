@@ -12,6 +12,14 @@
 #include <iostream>
 #include <string>
 
+#define LOG(...) printf("ipchkd > " __VA_ARGS__)
+
+#ifdef DEBUG
+#define DLOG(...) printf("ipchkd(debug) > " __VA_ARGS__)
+#else
+#define DLOG(...) /* empty */
+#endif
+
 void ip_check_deamon(int _port)
 {
     int serv_socket;
@@ -24,7 +32,7 @@ void ip_check_deamon(int _port)
     serv_socket = socket(PF_INET,SOCK_DGRAM,0);
     if(serv_socket==-1)
     {
-        printf("socket() error\n");
+        LOG("socket() error\n");
     }
 
     memset(&serv_adr,0,sizeof(serv_adr));
@@ -34,7 +42,7 @@ void ip_check_deamon(int _port)
 
     if(bind(serv_socket,(struct sockaddr*)&serv_adr, sizeof(serv_adr))==-1)
     {
-        printf("bind() error\n");
+        LOG("bind() error\n");
     }
 
     std::string userIP;
@@ -46,9 +54,8 @@ void ip_check_deamon(int _port)
         str_len=recvfrom(serv_socket, &dummy, 1, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
         if(str_len>0)
         {
-
             userIP = inet_ntoa(clnt_adr.sin_addr);
-            userPort = clnt_adr.sin_port;
+            userPort = ntohs(clnt_adr.sin_port);
             printf("ipchkd > %s:%d - ",userIP.c_str(),userPort);
             buffer+=userIP;
             buffer+=':';
