@@ -7,10 +7,20 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 
-#define BUFF_SIZE 40
+#define BUFF_SIZE 10000
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
-#define SERVER_IP "127.0.0.1"
+#define SERVER_IP "13.124.180.16"
+
+#define LOG(...) printf("orange > " __VA_ARGS__)
+
+#ifdef DEBUG
+#define DLOG(...) printf("orange(debug) > " __VA_ARGS__)
+#else
+#define DLOG(...) /* empty */
+#endif
+
+#define SHELL(...) printf("ssh$" __VA_ARGS__)
 
 void string_to_ip_port(char *ip_port, char *ptr_ip, int *port);
 
@@ -27,8 +37,8 @@ int main(int argc, char **argv) {
 
     struct sockaddr_in server_addr, server_main_addr, banana_addr;
 
-    char my_ip[BUFF_SIZE];
-    char banana_ip[BUFF_SIZE];
+    char my_ip[40];
+    char banana_ip[40];
 
     char s_buffer[BUFF_SIZE];
     char r_buffer[BUFF_SIZE];
@@ -126,15 +136,19 @@ int main(int argc, char **argv) {
     int data_size;
     banana_addr_size = sizeof(banana_addr);
 
-    for(;;) {
-
-        if((data_size = sendto(sock, s_buffer, sizeof(char), 0,
-                    (struct sockaddr*)&banana_addr,
-                    sizeof(banana_addr))) < 0) {
-            perror("sendto error!");
-            exit(2);
+    int count = 0;
+    //HOLE PUNCHING !!!
+    for(;;)
+    {
+        for(int i=0;i<3;i++){
+            if((data_size = sendto(sock, s_buffer, sizeof(char), 0,
+                            (struct sockaddr*)&banana_addr,
+                            sizeof(banana_addr))) < 0) {
+                perror("sendto error!");
+                exit(2);
+            }
+            printf("%dbytes send to banana\n",data_size);
         }
-        printf("%dbytes send to banana\n",data_size);
 
         if((data_size = recvfrom(sock, s_buffer, sizeof(s_buffer), 0,
                         NULL,
@@ -142,11 +156,36 @@ int main(int argc, char **argv) {
             perror("recvfrom error!");
             exit(3);
         }
+        s_buffer[data_size] = '\0';
 
         printf("received %dbytes \n", data_size);
+        printf("%s\n",s_buffer);
+        if(strcmp("READY?",s_buffer) == 0)
+        {
+            break;
+        }
 
     }
+    //ready for connection
 
+    sprintf(s_buffer,"OKAY");
+    printf("conncted\n");
+
+    sendto(sock, s_buffer, strlen(s_buffer), 0,
+            (struct sockaddr*)&banana_addr, sizeof(banana_addr));
+
+    size_t buf_size = sizeof(s_buffer);
+    char *shell_buf = 0;
+    while(1)
+    {
+        SHELL("");
+        getline(&shell_buf,&buf_size,stdin);
+        sendto(sock, shell_buf, strlen(shell_buf), 0,
+                (struct sockaddr *)&banana_addr, sizeof(banana_addr));
+        data_size = recvfrom(sock, r_buffer, sizeof(r_buffer), 0, NULL, NULL);
+        r_buffer[data_size] = '\0';
+        printf("%s\n",r_buffer);
+    }
     return 0;
 }
 
