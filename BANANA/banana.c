@@ -7,12 +7,16 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 
+#include "banana.h"
+
 #define BUFF_SIZE 40
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
-#define SERVER_IP "127.0.0.1"
+#define COMMAND_BUFF_SIZE 10000
+#define SERVER_IP "13.124.180.16"
 
 void string_to_ip_port(char *ip_port, char *ptr_ip, int *port);
+void parse_command(char *_command, char *_args[]);
 
 int main(int argc, char **argv) {
 
@@ -21,17 +25,17 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    struct sockaddr_in server_addr, server_main_addr,
+                       orange_addr;
+
     int sock, sock_main;
-    int server_addr_size;
-    socklen_t orange_addr_size;
-
-    struct sockaddr_in server_addr, server_main_addr, orange_addr;
-
     char my_ip[BUFF_SIZE];
     char orange_ip[BUFF_SIZE];
 
     char s_buffer[BUFF_SIZE];
     char r_buffer[BUFF_SIZE];
+
+    char command_buffer[COMMAND_BUFF_SIZE];
 
     sock = socket(PF_INET, SOCK_DGRAM, 0);
 
@@ -52,7 +56,6 @@ int main(int argc, char **argv) {
         exit(2);
     }
 
-    server_addr_size  = sizeof(server_addr);
     if(recvfrom(sock, my_ip, BUFF_SIZE, 0,
                 NULL,
                 NULL) < 0) {
@@ -121,10 +124,9 @@ int main(int argc, char **argv) {
     orange_addr.sin_addr.s_addr = inet_addr(ip);
 
     int data_size;
-    orange_addr_size = sizeof(orange_addr);
+    int count = 0;
 
     for(;;) {
-
         if((data_size = sendto(sock, s_buffer, sizeof(char), 0,
                     (struct sockaddr*)&orange_addr,
                     sizeof(orange_addr))) < 0) {
@@ -133,32 +135,86 @@ int main(int argc, char **argv) {
         }
         printf("%dbytes send to orange\n",data_size);
 
-        if((data_size = recvfrom(sock, s_buffer, sizeof(s_buffer), 0,
+        if((data_size = recvfrom(sock, s_buffer,
+                        sizeof(char), 0,
                         NULL,
                         NULL)) < 0) {
             perror("recvfrom error!");
             exit(3);
         }
+        printf("debugging\n");
 
-        printf("received %dbytes \n", data_size);
+        if(data_size == 1) {
+            printf("received %dbytes \n", data_size);
+            count++;
+        }
 
+        if(count == 3) break;
     }
+
+    //////////////////////////////////
+    //**ready for data translation**//
+    //////////////////////////////////
+
+    sprintf(s_buffer, "READY?");
+    printf("s_buffer : %s\n", s_buffer);
+
+    if((data_size = sendto(sock, s_buffer, strlen(s_buffer), 0,
+                    (struct sockaddr*)&orange_addr,
+                    sizeof(orange_addr))) < 0) {
+        perror("ready send error!");
+        exit(5);
+    }
+
+    printf("??? : %d\n", data_size);
+
+    do {
+        data_size = read(sock, r_buffer, BUFF_SIZE);
+        printf("buff cleaning : %s\n", r_buffer);
+    } while(strcmp(r_buffer, "OKAY"));
+
+    if(!strcmp(r_buffer, "OKAY")) {
+        printf("orange is connected \n");
+    } else {
+        printf("OKAY %s\n", r_buffer);
+    }
+
+    ///////////////////////
+    //**receive command**//
+    ///////////////////////
+
+    while(1) {
+        if((data_size = recvfrom(sock, command_buffer,
+                        COMMAND_BUFF_SIZE, 0,
+                        NULL, NULL)) < 0) {
+            perror("command recvfrom error!");
+            exit(5);
+        }
+
+        // echo command
+        if((data_size = sendto(sock, command_buffer,
+                        strlen(command_buffer), 0,
+                        (struct sockaddr*)&orange_addr,
+                        sizeof(orange_addr))) < 0) {
+            perror("echo command error!");
+            exit(5);
+        }
+
+        printf("command : %s\n", command_buffer);
+
+        //parsing
+        char *args[20];
+        parse_command(command_buffer, args);
+
+        int i;
+        for(i=0; i<2; i++) {
+            printf("args[%d] : %s\n", i, args[i]);
+        }
+    }
+
+    //shell operation
+    //result send
 
     return 0;
 }
 
-void string_to_ip_port(char *ip_port, char *ptr_ip,
-        int *ptr_port) {
-    char _ip[20];
-    int index = 0;
-
-    while(ip_port[index] != ':') {
-        _ip[index] = ip_port[index];
-        index++;
-    }
-    _ip[index] = '\0';
-    memcpy(ptr_ip, _ip, 20);
-
-    char *temp = &ip_port[index+1];
-    *ptr_port = atoi(temp);
-}
