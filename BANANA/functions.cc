@@ -20,19 +20,20 @@ void string_to_ip_port(char *ip_port, char *ptr_ip,
     *ptr_port = atoi(temp);
 }
 
-void parse_command(char *_command, char *_args[20]) {
+void parse_command(char *command, char argv[][20]) {
     printf("ddd");
     const char delim[2] = " ";
     char *token;
     int index = -1;
 
-    token = strtok(_command, delim);
-    memcpy(_args[++index], token, strlen(token));
+    token = strtok(command, delim);
+    memcpy(argv[++index], token, strlen(token));
     printf("??????\n");
 
     while(token != NULL) {
         token = strtok(NULL, delim);
-        memcpy(_args[++index], token, strlen(token));
+        memcpy(argv[++index], token, strlen(token));
         printf("??????22\n");
     }
 }
+
