@@ -1,13 +1,13 @@
 SRCS   = $(wildcard *.c)
 OBJECT = $(SRCS:.c=.o)
 
-all : temp
-temp : $(OBJECT)
+all : banana
+banana : $(OBJECT)
 	$(CC) -o $@ $^
 
 #banana : $(OBJECT)
 #	$(CC) -o $@ $^
 
 clean :
-	rm *.o temp
+	rm *.o banana
 

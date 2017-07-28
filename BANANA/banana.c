@@ -9,14 +9,11 @@
 
 #include "banana.h"
 
-#define BUFF_SIZE 40
+#define BUFF_SIZE 64
 #define APPLE_D_PORT 1500
 #define APPLE_M_PORT 1509
 #define COMMAND_BUFF_SIZE 10000
 #define SERVER_IP "13.124.180.16"
-
-void string_to_ip_port(char *ip_port, char *ptr_ip, int *port);
-void parse_command(char *_command, char *_args[]);
 
 int main(int argc, char **argv) {
 
@@ -203,16 +200,26 @@ int main(int argc, char **argv) {
         printf("command : %s\n", command_buffer);
 
         //parsing
-        char *args[20];
+        struct args *args = (struct args*)malloc(sizeof(struct args));
         parse_command(command_buffer, args);
 
+        //shell operation
+        char *argv[64];
+        char *current_arg;
         int i;
-        for(i=0; i<2; i++) {
-            printf("args[%d] : %s\n", i, args[i]);
+
+        for(i=0; i<args->argc; i++) {
+            argv[i] = args->argv[i];
         }
+        argv[i] = '\0';
+
+        if(fork() == 0) {
+            execvp("ls", argv);
+            printf("what? you funxing");
+        }
+
     }
 
-    //shell operation
     //result send
 
     return 0;
