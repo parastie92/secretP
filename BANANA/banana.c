@@ -7,13 +7,11 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 
-#include "banana.h"
+#include "functions.h"
+#include "net_apple.h"
 
 #define BUFF_SIZE 64
-#define APPLE_D_PORT 1500
-#define APPLE_M_PORT 1509
 #define COMMAND_BUFF_SIZE 10000
-#define SERVER_IP "13.124.180.16"
 
 int main(int argc, char **argv) {
 
@@ -22,11 +20,11 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    struct sockaddr_in server_addr, server_main_addr,
-                       orange_addr;
+    struct sockaddr_in server_addr, server_main_addr, orange_addr;
 
     int sock, sock_main;
-    char my_ip[BUFF_SIZE];
+
+    char banana_ip[BUFF_SIZE];
     char orange_ip[BUFF_SIZE];
 
     char s_buffer[BUFF_SIZE];
@@ -41,27 +39,10 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family      = AF_INET;
-    server_addr.sin_port        = htons(APPLE_D_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    send_to_daemon(&sock, s_buffer, banana_ip);
 
-    if(sendto(sock, s_buffer, sizeof(char), 0,
-                (struct sockaddr*)&server_addr,
-                sizeof(server_addr)) < 0) {
-        perror("sendto error!");
-        exit(2);
-    }
-
-    if(recvfrom(sock, my_ip, BUFF_SIZE, 0,
-                NULL,
-                NULL) < 0) {
-        perror("recvfrom error!");
-        exit(3);
-    }
-
-    printf("receive_ip by demon: %s \n", my_ip);
-    sprintf(s_buffer, "%d%c%s" , atoi(argv[1]), 'b', my_ip);
+    printf("receive_ip by demon: %s \n", banana_ip);
+    sprintf(s_buffer, "%d%c%s" , atoi(argv[1]), 'b', banana_ip);
     printf("message to main_server: %s\n", s_buffer);
 
     sock_main = socket(PF_INET, SOCK_STREAM, 0);
@@ -215,7 +196,7 @@ int main(int argc, char **argv) {
 
         if(fork() == 0) {
             execvp("ls", argv);
-            printf("what? you funxing");
+            printf("what? fuxking");
         }
 
     }

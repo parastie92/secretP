@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "banana.h"
+#include "functions.h"
 
 void string_to_ip_port(char *ip_port, char *ptr_ip,
         int *ptr_port) {
